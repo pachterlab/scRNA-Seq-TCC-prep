@@ -1,0 +1,32 @@
+{
+    "NUM_THREADS": 32,
+    "WINDOW": [500, 5000],   
+    "BASE_DIR": "/home/vasilis/clustering_EQ/10xPipeline/example_hummus_dataset/fastq_files/",
+    "barcode_filenames":
+         ["read-I1_si-ATCGCTCC_lane-001-chunk-001.fastq.tst.gz",
+          "read-I1_si-ATCGCTCC_lane-002-chunk-000.fastq.tst.gz",
+          "read-I1_si-CCGTACAG_lane-001-chunk-001.fastq.tst.gz",
+          "read-I1_si-CCGTACAG_lane-002-chunk-000.fastq.tst.gz",
+          "read-I1_si-GATAGGTA_lane-001-chunk-001.fastq.tst.gz",
+          "read-I1_si-GATAGGTA_lane-002-chunk-000.fastq.tst.gz",
+          "read-I1_si-TGACTAGT_lane-001-chunk-001.fastq.tst.gz",
+          "read-I1_si-TGACTAGT_lane-002-chunk-000.fastq.tst.gz"],
+    "read_filenames": 
+         ["read-RA_si-ATCGCTCC_lane-001-chunk-001.fastq.tst.gz",
+          "read-RA_si-ATCGCTCC_lane-002-chunk-000.fastq.tst.gz",
+          "read-RA_si-CCGTACAG_lane-001-chunk-001.fastq.tst.gz",
+          "read-RA_si-CCGTACAG_lane-002-chunk-000.fastq.tst.gz",
+          "read-RA_si-GATAGGTA_lane-001-chunk-001.fastq.tst.gz",
+          "read-RA_si-GATAGGTA_lane-002-chunk-000.fastq.tst.gz",
+          "read-RA_si-TGACTAGT_lane-001-chunk-001.fastq.tst.gz",
+          "read-RA_si-TGACTAGT_lane-002-chunk-000.fastq.tst.gz"],
+    "SAVE_DIR": "/home/vasilis/clustering_EQ/10xPipeline/example_hummus_dataset/save_data/",
+    "dmin": 5,
+    "BARCODE_LENGTH": 14,
+    "OUTPUT_DIR": "/home/vasilis/clustering_EQ/10xPipeline/example_hummus_dataset/fastq_files/singlecell_fastqs/",
+    "kallisto":{
+        "binary": "/home/vasilis/kallisto_43",
+        "index": "/home/vasilis/clustering_EQ/SC/hummus_index.idx",
+        "TCC_output" : "/home/vasilis/clustering_EQ/10xPipeline/example_hummus_dataset/TCC_output"
+    }
+}
