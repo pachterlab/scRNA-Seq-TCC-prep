@@ -19,6 +19,7 @@ print "Number of threads", parameter["NUM_THREADS"]
 
 import numpy as np
 from scipy.sparse import coo_matrix
+from sklearn.preprocessing import normalize
 
 #matrix.ec file
 ecfile_dir = parameter["kallisto"]["TCC_output"]+"/matrix.ec"
@@ -37,7 +38,7 @@ NUM_OF_CELLS = TCCmatrix.shape[1]
 print "NUM_OF_CELLS =", NUM_OF_CELLS
       
 T = TCCmatrix.tocsr()
-T_norm = T/np.array(T.sum(axis=0),dtype='double')
+T_norm = normalize(T, norm='l1', axis=0) 
 T_normT = T_norm.transpose()
 del TCCmatrix;
 _ = gc.collect()
@@ -64,8 +65,8 @@ def L1_distance(p,q):
 num_of_threads = parameter["NUM_THREADS"]
 print "Calculating pairwise L1 distances... ( num_threads =",num_of_threads,")"
 
-# D_js = pairwise_distances(T_norm.transpose(),metric=jensen_shannon,n_jobs=num_of_threads)
-D_l1 = pairwise_distances(T_norm.transpose(),metric=L1_distance,n_jobs=num_of_threads)
+# D_js = pairwise_distances(T_normT,metric=jensen_shannon,n_jobs=num_of_threads)
+D_l1 = pairwise_distances(T_normT,metric=L1_distance,n_jobs=num_of_threads)
 
 print "writing data..."
 
