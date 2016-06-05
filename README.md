@@ -18,7 +18,7 @@ The processing workflow consists of four steps:
 0. Preparation of a configuration file that contains the parameters needed for the processing.
 1. Identification of "true" cell barcodes according to read coverage followed by error correction when possible.
 2. Creation of read/UMI files for each cell.
-3. Pseudoalignment of reads associated with each cell using __kallisto__, deduplication according to UMIs, and generation of transcript compatibility counts (TCCs) for each cell.
+3. [Pseudoalignment](http://www.nature.com/nbt/journal/v34/n5/abs/nbt.3519.html) of reads associated with each cell using __kallisto__, deduplication according to UMIs, and generation of transcript compatibility counts (TCCs) for each cell.
 
 Following the pre-processing, the transcript compatibility counts (TCC) matrix can be analyzed using a Jupyter Notebook. 
 
@@ -49,7 +49,7 @@ Once barcodes have been identified and (some) erroneous barcodes corrected, the 
 
 #### Pseudoalignment
 
-The computation of transcript compatibility counts is performed using __kallisto__ with by running `python compute_TCCs.py config.json` followed by `python prep_TCC_matrix.py config.json`. The first script runs __kallisto__ and the second step computes a pairwise distance matrix between cells that is essential for analysis. The result of running the two scripts is the generation of three files needed for analysis: `TCC_matrix.dat`, `pwise_dist_L1.dat` and `nonzero_ec.dat`. 
+The computation of transcript compatibility counts is performed using __kallisto__ by running `python compute_TCCs.py config.json` followed by `python prep_TCC_matrix.py config.json`. The first script runs __kallisto__ and the second step computes a pairwise distance matrix between cells that is essential for analysis. The result of running the two scripts is the generation of three files needed for analysis: `TCC_matrix.dat`, `pwise_dist_L1.dat` and `nonzero_ec.dat`. 
 
 Note that the entire workflow can be run using the master script `10xDetect_and_Prep.py` although as explained above we recommend examining the barcode data using the Jupyter Notebook in the barcode identification and error correction step.
  
