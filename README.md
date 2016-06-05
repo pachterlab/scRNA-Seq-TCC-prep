@@ -61,4 +61,4 @@ The analysis workflow for an experiment will depend on the specifics of the data
 
 ## Contributions
 
-This 10X Chromium 3' digital expression processing workflow was designed and implemented by Vasilis Ntranos with some input from Lior Pachter. Pall Melsted added the `--umi` option to __kallisto__ which allows for deduplicating reads using associated unique molecular identifiers (UMIs).
+This 10X Chromium 3' digital expression processing workflow was designed and implemented by Vasilis Ntranos with some input from Lior Pachter. P&aacute;ll Melsted added the `--umi` option to __kallisto__ which allows for deduplicating reads using associated unique molecular identifiers (UMIs).
