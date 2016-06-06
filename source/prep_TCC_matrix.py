@@ -22,8 +22,8 @@ from scipy.sparse import coo_matrix
 from sklearn.preprocessing import normalize
 
 #matrix.ec file
-ecfile_dir = parameter["kallisto"]["TCC_output"]+"/matrix.ec"
-tsvfile_dir = parameter["kallisto"]["TCC_output"]+"/matrix.tsv"
+ecfile_dir = parameter["kallisto"]["TCC_output"]+"matrix.ec"
+tsvfile_dir = parameter["kallisto"]["TCC_output"]+"matrix.tsv"
 
 print "Loading TCCs.."
 

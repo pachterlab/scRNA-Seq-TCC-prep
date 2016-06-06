@@ -45,7 +45,7 @@ BARCODE_LENGTH=parameter['BARCODE_LENGTH']
 output_dir = parameter['OUTPUT_DIR']
 NUM_THREADS = parameter['NUM_THREADS']
 #temporary file to extract all reads
-all_reads_file = str(parameter["BASE_DIR"])+'all_reads.fastq'
+all_reads_file = str(parameter["SAVE_DIR"])+'all_reads.fastq'
 
 
 # ### Load barcodes
