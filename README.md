@@ -52,7 +52,7 @@ Once barcodes have been identified and (some) erroneous barcodes corrected, the 
 
 The computation of transcript compatibility counts is performed using __kallisto__ by running `python compute_TCCs.py config.json` followed by `python prep_TCC_matrix.py config.json`. The first script runs __kallisto__ and the second step computes a pairwise distance matrix between cells that is essential for analysis. The result of running the two scripts is the generation of three files needed for analysis: `TCC_matrix.dat`, `pwise_dist_L1.dat` and `nonzero_ec.dat`. 
 
-Note that the entire workflow can be run using the master script `10xDetect_and_Prep.py` although as explained above we recommend examining the barcode data using the Jupyter Notebook in the barcode identification and error correction step.
+Note that the entire workflow can be run using the master script `10xDetect_and_Prep.py` although as explained above we recommend examining the barcode data using the Jupyter Notebook `10xGet_cell_barcodes.ipynb`. After the barcode analysis and selection step, the rest of the workflow can be completed by running `python 10xPrepData.py config.json`.
  
 #### Analysis
 
