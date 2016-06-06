@@ -87,7 +87,8 @@ print "Barcodes:\n"
 for bar in barcodes[:10]:
        print decode(bar)
 print "..."
-print "NUMBER_OF_SEQUENCED_READS =",len(barcodes)
+NUMBER_OF_SEQUENCED_READS=len(barcodes)
+print "NUMBER_OF_SEQUENCED_READS =",NUMBER_OF_SEQUENCED_READS
 
 print "Detecting Cells..."
 
@@ -104,7 +105,8 @@ values = np.array(values)[indSort]
 
 indices = np.arange(len(labels))
 
-print "NUM_OF_DISTINCT_BARCODES =",len(indices)
+NUM_OF_DISTINCT_BARCODES=len(indices)
+print "NUM_OF_DISTINCT_BARCODES =",NUM_OF_DISTINCT_BARCODES
 
 
 
@@ -121,8 +123,8 @@ yhat = savgol(valdiff, 151, 1)
 NUM_OF_BARCODES=np.argmax(-yhat[WINDOW[0]:WINDOW[1]])+WINDOW[0]
 print "Cell_barcodes_detected:",NUM_OF_BARCODES
 
-NUM_OF_READS_in_barcodes = sum(values[:NUM_OF_BARCODES])
-print "NUM_OF_READS_in_CELL_BARCODES =",NUM_OF_READS_in_barcodes
+NUM_OF_READS_in_CELL_BARCODES = sum(values[:NUM_OF_BARCODES])
+print "NUM_OF_READS_in_CELL_BARCODES =",NUM_OF_READS_in_CELL_BARCODES
 
 codewords=labels[:NUM_OF_BARCODES]
 
