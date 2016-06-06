@@ -15,5 +15,12 @@ kallisto_cmd= parameter["kallisto"]["binary"]+" pseudo -i "+parameter["kallisto"
 
 print "Running kallisto pseudo:"
 print kallisto_cmd
+
+printer="KALLISTO CMD: "+kallisto_cmd+'\n'
+
+save_dir=str(parameter["SAVE_DIR"])
+with open(save_dir+"run.info", 'a') as f:
+    f.write(printer)
+
 os.system(kallisto_cmd)
 print "DONE."

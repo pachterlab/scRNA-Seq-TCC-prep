@@ -132,7 +132,8 @@ p.close(); p.join()
 reads_per_barcode=[]
 for i in range(len(codewords)):
     reads_per_barcode+=[len(ret_vec[i])]
-print "NUM_OF_READS_in_CELL_BARCODES (after error-correct):",sum(reads_per_barcode)
+NUM_OF_READS_in_CELL_BARCODES = sum(reads_per_barcode)
+print "NUM_OF_READS_in_CELL_BARCODES (after error-correct):",NUM_OF_READS_in_CELL_BARCODES
 
 
 # ### Output single-cell files
@@ -241,7 +242,7 @@ fastqfiles = [output_dir+f for f in listdir(output_dir) if isfile(join(output_di
 
 def gzip_fastqs(filepath):
     if filepath[-6:]==".fastq":
-        os.system("gzip "+ filepath)
+        os.system("gzip -f "+ filepath)
 
 print "gzip..."
 
@@ -266,16 +267,16 @@ for i in range(len(cell_ids)):
 
 with open(str(parameter["OUTPUT_DIR"])+"umi_read_list.txt", 'wb') as f:
                    f.write(out_data)
-    
+
+printer=""
+printer+="NUM_OF_READS_in_CELL_BARCODES (after error-correct): %s\n" % NUM_OF_READS_in_CELL_BARCODES
+printer+="NUMBER_OF_LINES in 'all_reads.fastq': %s\n" % NUM_OF_LINES  
+with open(save_dir+"run.info", 'a') as f:
+    f.write(printer)
+print '\n'
+print printer        
+        
 print "DONE"    
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
 
 
 

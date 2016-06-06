@@ -18,3 +18,4 @@ try:
     os.system('python prep_TCC_matrix.py '+json_path)
 except:
     print "ERROR."
+    exit(1)

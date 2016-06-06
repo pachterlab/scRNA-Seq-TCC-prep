@@ -87,8 +87,8 @@ print "Barcodes:\n"
 for bar in barcodes[:10]:
        print decode(bar)
 print "..."
-NUMBER_OF_SEQUENCED_READS=len(barcodes)
-print "NUMBER_OF_SEQUENCED_READS =",NUMBER_OF_SEQUENCED_READS
+NUMBER_OF_SEQUENCED_BARCODES=len(barcodes)
+print "NUMBER_OF_SEQUENCED_BARCODES =",NUMBER_OF_SEQUENCED_BARCODES
 
 print "Detecting Cells..."
 
@@ -166,7 +166,16 @@ with open(save_dir+"codewords.dat", 'wb') as f:
     pickle.dump(codewords,f)
 with open(save_dir+"brc_idx_to_correct.dat", 'wb') as f:
     pickle.dump(brc_idx_to_correct,f)
-
+printer=""
+printer+="NUMBER_OF_SEQUENCED_BARCODES: %s\n" % NUMBER_OF_SEQUENCED_BARCODES
+printer+="NUM_OF_DISTINCT_BARCODES: %s\n" % NUM_OF_DISTINCT_BARCODES   
+printer+="Cell_barcodes_detected: %s\n" % NUM_OF_BARCODES
+printer+="NUM_OF_READS_in_CELL_BARCODES: %s\n" % NUM_OF_READS_in_CELL_BARCODES
+printer+="NUM_OF_CELL_BARCODES_to_CORRECT %s (dmin >=%s)\n" % (len(brc_idx_to_correct), d)    
+with open(save_dir+"run.info", 'wb') as f:
+    f.write(printer)
+print '\n'
+print printer
 print "DONE."
 
 
