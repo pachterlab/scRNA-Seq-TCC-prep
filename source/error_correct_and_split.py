@@ -132,7 +132,7 @@ p.close(); p.join()
 reads_per_barcode=[]
 for i in range(len(codewords)):
     reads_per_barcode+=[len(ret_vec[i])]
-print "Reads in Barcodes:",sum(reads_per_barcode)
+print "NUM_OF_READS_in_CELL_BARCODES (after error-correct):",sum(reads_per_barcode)
 
 
 # ### Output single-cell files
@@ -264,7 +264,7 @@ out_data=''
 for i in range(len(cell_ids)):
     out_data+=cell_ids[i]+'\t'+umifiles[i]+'\t'+fastqfiles[i]+'\n'
 
-with open(str(parameter["BASE_DIR"])+"umi_read_list.txt", 'wb') as f:
+with open(str(parameter["OUTPUT_DIR"])+"umi_read_list.txt", 'wb') as f:
                    f.write(out_data)
     
 print "DONE"    

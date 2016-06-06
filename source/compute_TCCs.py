@@ -11,7 +11,7 @@ import json
 with open(json_path) as json_file:
     parameter = json.load(json_file)
 
-kallisto_cmd= parameter["kallisto"]["binary"]+" pseudo -i "+parameter["kallisto"]["index"]+" -o "+parameter["kallisto"]["TCC_output"]+" --umi -b "+parameter["BASE_DIR"]+"umi_read_list.txt"+" -t "+str(parameter["NUM_THREADS"])
+kallisto_cmd= parameter["kallisto"]["binary"]+" pseudo -i "+parameter["kallisto"]["index"]+" -o "+parameter["kallisto"]["TCC_output"]+" --umi -b "+parameter["OUTPUT_DIR"]+"umi_read_list.txt"+" -t "+str(parameter["NUM_THREADS"])
 
 print "Running kallisto pseudo:"
 print kallisto_cmd
