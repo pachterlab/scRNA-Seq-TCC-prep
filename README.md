@@ -24,10 +24,11 @@ Following the pre-processing, the transcript compatibility counts (TCC) matrix c
 
 #### Creation of the configuration file
 
-PArameters needed to run the processing require specification of a `config.json` file. The following parameters need to be specified:
+Parameters needed to run the processing require specification of a `config.json` file. The following parameters need to be specified:
 
 - NUM_THREADS: the number of threads available for processing.
 - WINDOW: this parameter contains a lower and upper threshold for the expected number of cells in the experiment. It is used in the determination of the number o cells in the experiment from reads coverage data.
+- SOURCE_DIR: path to the source directory that contains the .py scripts
 - BASE_DIR: this must contain the path to the (demultiplexed) FASTQ files from the sequencing. Note that our workflow does not currently demultiplex reads and you may have to do so with 10X's software; we plan to provide a demultiplexing script in the future.
 - barcode_filenames: the names of the (gzipped) barcode FASTQ files.
 - read_filenames: the names of the (gzipped) read FASTQ files.
@@ -41,7 +42,7 @@ PArameters needed to run the processing require specification of a `config.json`
 
 The first step in the workflow is to identify "true" barcodes, and to error correct barcodes that are close to true barcodes, yet associated with sufficiently low read coverage to be confidently identified as containing an error. The script `get_cell_barcodes.py` in the [source](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/source) directory performs the identification and error correction and is called with `python get_cell_barcodes.py config.json`.
 
-While `get_cell_barcodes.py` can be run from the command line, we strongly encourage users to instead perform this step using the Jupyter Notebook `get_cell_barcodes.ipynb` in the [notebooks](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/notebooks) directory. The interactive notebook produces summary statistics and figures that are useful for both quality control and for the setting of parameters for error correction. 
+While `get_cell_barcodes.py` can be run from the command line, we strongly encourage users to instead perform this step using the Jupyter Notebook `10xGet_cell_barcodes.ipynb` in the [notebooks](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/notebooks) directory. The interactive notebook produces summary statistics and figures that are useful for both quality control and for the setting of parameters for error correction. 
 
 #### Cell file generation
 
@@ -51,11 +52,11 @@ Once barcodes have been identified and (some) erroneous barcodes corrected, the 
 
 The computation of transcript compatibility counts is performed using __kallisto__ by running `python compute_TCCs.py config.json` followed by `python prep_TCC_matrix.py config.json`. The first script runs __kallisto__ and the second step computes a pairwise distance matrix between cells that is essential for analysis. The result of running the two scripts is the generation of three files needed for analysis: `TCC_matrix.dat`, `pwise_dist_L1.dat` and `nonzero_ec.dat`. 
 
-Note that the entire workflow can be run using the master script `10xDetect_and_Prep.py` although as explained above we recommend examining the barcode data using the Jupyter Notebook in the barcode identification and error correction step.
+Note that the entire workflow can be run using the master script `10xDetect_and_Prep.py` although as explained above we recommend examining the barcode data using the Jupyter Notebook `10xGet_cell_barcodes.ipynb`. After the barcode analysis and selection step, the rest of the workflow can be completed by running `python 10xPrepData.py config.json`.
  
 #### Analysis
 
-The `TCC_matrix.dat` file contains a matrix that specifies, for each cell, a list of transcript sets with associated counts. Those counts, called transcript compatibility counts, are explained in [Ntranos _et al._ 2016](http://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0970-8). The are the starting point for downstream analysis of the data.
+The `TCC_matrix.dat` file contains a matrix that specifies, for each cell, a list of transcript sets with associated counts. Those counts, called transcript compatibility counts, are explained in [Ntranos _et al._ 2016](http://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0970-8). They are the starting point for downstream analysis of the data.
 
 The analysis workflow for an experiment will depend on the specifics of the data and the questions associated with it. To help users get started, we have provided two examples based on datasets distributed by 10X: an experiment with both human and mouse cells and an analysis of peripheral blood mononuclear cells.
 
