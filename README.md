@@ -8,8 +8,7 @@ We currently support the 10X Chromium technology; support for more technologies 
 
 #### Getting started
 
-
-The [getting started](http://pachterlab.github.io/kallisto/10xstarting.html) tutorial explains how to process the small example in the [example_dataset](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/example_dataset) directory. This is a good starting point to make sure that the necessary programs are correctly installed. Note that you will need __kallisto__ version 0.43.0 or later, python, and Juypter Notebook installed (the Jupyter requirement is not strictly necessary but highly recommended).
+The [getting started](http://pachterlab.github.io/kallisto/10xstarting.html) tutorial explains how to process the small example in the [example_dataset](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/example_dataset) directory. This is a good starting point to make sure that the necessary programs are correctly installed. Note that you will need kallisto (≥ 0.43.0), python (≥ 2.7.10), scipy (≥ 0.16.0), scikit-learn (__= 0.16.1__) and Juypter Notebook (≥ 4.0.6) installed (the Jupyter requirement is not strictly necessary but highly recommended). __Please note that there appears to be a problem with tSNE in scikit-learn v0.17.1__.
 
 #### Workflow organization
 
@@ -36,7 +35,7 @@ Parameters needed to run the processing require specification of a `config.json`
 - dmin: the minimum distance between barcodes needed for error correction to be performed.
 - BARCODE_LENGTH: length of the barcodes.
 - OUTPUT_DIR: directory in which to output results.
-- kallisto: path to the binary for __kallisto__, location of the __kallisto__ index file for the appropriate transcriptome and path where to save the TCC matrix.
+- kallisto: path to the binary for kallisto, location of the kallisto index file for the appropriate transcriptome and path where to save the TCC matrix.
 
 #### Barcode analysis and selection
 
@@ -46,11 +45,11 @@ While `get_cell_barcodes.py` can be run from the command line, we strongly encou
 
 #### Cell file generation
 
-Once barcodes have been identified and (some) erroneous barcodes corrected, the next step is to generate individual read and UMI files for each cell for processing by __kallisto__. This can be performed with the command `python error_correct_and_split.py config.json`. 
+Once barcodes have been identified and (some) erroneous barcodes corrected, the next step is to generate individual read and UMI files for each cell for processing by kallisto. This can be performed with the command `python error_correct_and_split.py config.json`. 
 
 #### Pseudoalignment
 
-The computation of transcript compatibility counts is performed using __kallisto__ by running `python compute_TCCs.py config.json` followed by `python prep_TCC_matrix.py config.json`. The first script runs __kallisto__ and the second step computes a pairwise distance matrix between cells that is essential for analysis. The result of running the two scripts is the generation of three files needed for analysis: `TCC_matrix.dat`, `pwise_dist_L1.dat` and `nonzero_ec.dat`. 
+The computation of transcript compatibility counts is performed using kallisto by running `python compute_TCCs.py config.json` followed by `python prep_TCC_matrix.py config.json`. The first script runs kallisto and the second step computes a pairwise distance matrix between cells that is essential for analysis. The result of running the two scripts is the generation of three files needed for analysis: `TCC_matrix.dat`, `pwise_dist_L1.dat` and `nonzero_ec.dat`. 
 
 Note that the entire workflow can be run using the master script `10xDetect_and_Prep.py` although as explained above __we recommend examining the barcode data using the Jupyter Notebook `10xGet_cell_barcodes.ipynb`__. After the barcode analysis and selection step, the rest of the workflow can be completed by running `python 10xPrepData.py config.json`.
  
@@ -62,4 +61,4 @@ The analysis workflow for an experiment will depend on the specifics of the data
 
 ## Contributions
 
-This 10X Chromium 3' digital expression processing workflow was designed and implemented by Vasilis Ntranos with some input from Lior Pachter. P&aacute;ll Melsted added the `--umi` option to __kallisto__ which allows for deduplicating reads using associated unique molecular identifiers (UMIs).
+This 10X Chromium 3' digital expression processing workflow was designed and implemented by Vasilis Ntranos with some input from Lior Pachter. P&aacute;ll Melsted added the `--umi` option to kallisto which allows for deduplicating reads using associated unique molecular identifiers (UMIs).
