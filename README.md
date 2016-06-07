@@ -8,8 +8,7 @@ We currently support the 10X Chromium technology; support for more technologies 
 
 #### Getting started
 
-
-The [getting started](http://pachterlab.github.io/kallisto/10xstarting.html) tutorial explains how to process the small example in the [example_dataset](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/example_dataset) directory. This is a good starting point to make sure that the necessary programs are correctly installed. Note that you will need __kallisto__ (≥ 0.43.0), python (≥ 2.7.10), scipy (≥ 0.16.0) and Juypter Notebook (≥ 4.0.6) installed (the Jupyter requirement is not strictly necessary but highly recommended).
+The [getting started](http://pachterlab.github.io/kallisto/10xstarting.html) tutorial explains how to process the small example in the [example_dataset](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/master/example_dataset) directory. This is a good starting point to make sure that the necessary programs are correctly installed. Note that you will need __kallisto__ (≥ 0.43.0), python (≥ 2.7.10), scipy (≥ 0.16.0), scikit-learn (= 0.16.1) and Juypter Notebook (≥ 4.0.6) installed (the Jupyter requirement is not strictly necessary but highly recommended). __Please note that there appears to be a problem with tSNE in scikit-learn v0.17.1__.
 
 #### Workflow organization
 
