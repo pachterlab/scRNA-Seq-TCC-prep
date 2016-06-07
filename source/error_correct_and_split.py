@@ -70,7 +70,7 @@ def encode(k):
 
 def decode(code):
     ret = ''
-    for _ in range(14):
+    for _ in range(BARCODE_LENGTH):
         index = code & 3
         code >>= 2
         ret = decoding_lst[index] + ret
@@ -96,45 +96,73 @@ print t1-t0, "sec"
 
 # In[4]:
 
-def merge_barcodes(id):
-    if id in brc_idx_to_correct:
-        s=set(mutations(decode(codewords[id]),1))
-        pos=[]
-        for idx, barcode in enumerate(barcodes):
-            if barcode in s:
-                pos+=[idx]
-        return pos
-    else:
-        s=codewords[id]
-        return [idx for idx, barcode in enumerate(barcodes) if barcode == s]
-    
-    
-import itertools
-def mutations(word, hamming_distance, charset='ATCG'):
-    for indices in itertools.combinations(range(len(word)), hamming_distance):
-        for replacements in itertools.product(charset, repeat=hamming_distance):
-            mutation = list(word)
-            for index, replacement in zip(indices, replacements):
-                mutation[index] = replacement
-            yield encode("".join(mutation))
+chunksize=len(barcodes)/NUM_THREADS
+
+cw={}
+for id in range(len(codewords)):
+    cw[codewords[id]] = id
+
+barcode_split=[]
+for i in range(0, len(barcodes), chunksize):        
+    barcode_split+=[barcodes[i:i+chunksize]]
 
 
 
-print "Merging barcodes... NUM_THREADS =",NUM_THREADS 
+from itertools import chain, combinations, product
+def hamming_circle(s, n, alphabet='ATCG'):
+    """Generate strings over alphabet whose Hamming distance from s is
+    exactly n.
+    """
+    for positions in combinations(range(len(s)), n):
+        for replacements in product(range(len(alphabet) - 1), repeat=n):
+            cousin = list(s)
+            for p, r in zip(positions, replacements):
+                if cousin[p] == alphabet[r]:
+                    cousin[p] = alphabet[-1]
+                else:
+                    cousin[p] = alphabet[r]
+            yield encode(''.join(cousin))
+            
+def merge_barcodes(barcs):
+    retvec=[]
+    for id in range(len(codewords)):
+        retvec+=[[]]
+    for idx, barcode in enumerate(barcs):
+        if barcode in codeword_set: retvec[cw[barcode]] +=[idx]
+        else:
+            neighbors = hamming_circle(decode(barcode),1)
+            for neighbor in neighbors:
+                if neighbor in brc_to_correct: retvec[cw[neighbor]] +=[idx]; break;
+    return retvec
+            
+         
+print "Merging barcodes..." 
+codeword_set = set(codewords)
+codeword_list = list(codewords)
+brc_to_correct=set(codewords[brc_idx_to_correct])
+
+t0 = time.time()
 p = Pool(NUM_THREADS)
 t0 = time.time()
-ret_vec=p.map(merge_barcodes, range(len(codewords)))
-t1 = time.time()
-print t1-t0, "sec"
+ret_threads=p.map(merge_barcodes, barcode_split)
 p.close(); p.join()
 
+ret_vec=[]
+for id in range(len(codewords)):
+    idx_list=[]
+    for t in range(len(ret_threads)):
+        idx_list+=ret_threads[t][id]        
+    ret_vec+=[idx_list]
+
+
+t1 = time.time()
+print t1-t0, "sec"
 
 reads_per_barcode=[]
 for i in range(len(codewords)):
     reads_per_barcode+=[len(ret_vec[i])]
 NUM_OF_READS_in_CELL_BARCODES = sum(reads_per_barcode)
-print "NUM_OF_READS_in_CELL_BARCODES (after error-correct):",NUM_OF_READS_in_CELL_BARCODES
-
+print "NUM_OF_READS_in_CELL_BARCODES (after error-correct):",NUM_OF_READS_in_CELL_BARCODES 
 
 # ### Output single-cell files
 
@@ -169,7 +197,7 @@ os.system(command)
 t0=time.time()
 print "gunzip..."
 
-os.system("gunzip "+all_reads_file+".gz")
+os.system("gunzip -f "+all_reads_file+".gz")
 
 t1=time.time()
 print t1-t0, "sec"
@@ -277,6 +305,4 @@ print '\n'
 print printer        
         
 print "DONE"    
-
-
 
