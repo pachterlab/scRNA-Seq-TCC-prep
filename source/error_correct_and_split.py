@@ -95,8 +95,7 @@ print t1-t0, "sec"
 # ### Error-correct barcodes
 
 # In[4]:
-
-chunksize=len(barcodes)/NUM_THREADS
+chunksize=1+len(barcodes)/NUM_THREADS
 
 cw={}
 for id in range(len(codewords)):
@@ -104,9 +103,7 @@ for id in range(len(codewords)):
 
 barcode_split=[]
 for i in range(0, len(barcodes), chunksize):        
-    barcode_split+=[barcodes[i:i+chunksize]]
-
-
+    barcode_split+=[[i,barcodes[i:i+chunksize]]]
 
 from itertools import chain, combinations, product
 def hamming_circle(s, n, alphabet='ATCG'):
@@ -124,15 +121,17 @@ def hamming_circle(s, n, alphabet='ATCG'):
             yield encode(''.join(cousin))
             
 def merge_barcodes(barcs):
+    offset=barcs[0]
+    barcs=barcs[1]
     retvec=[]
     for id in range(len(codewords)):
         retvec+=[[]]
     for idx, barcode in enumerate(barcs):
-        if barcode in codeword_set: retvec[cw[barcode]] +=[idx]
+        if barcode in codeword_set: retvec[cw[barcode]] +=[idx+offset]
         else:
             neighbors = hamming_circle(decode(barcode),1)
             for neighbor in neighbors:
-                if neighbor in brc_to_correct: retvec[cw[neighbor]] +=[idx]; break;
+                if neighbor in brc_to_correct: retvec[cw[neighbor]] +=[idx+offset]; break;
     return retvec
             
          
