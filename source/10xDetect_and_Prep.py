@@ -1,5 +1,7 @@
+###### v0.2 ######
 import os
 import sys
+
 
 json_path=os.path.abspath(sys.argv[1])
 if not os.path.isfile(json_path):
@@ -37,15 +39,25 @@ if not parameter["kallisto"]["TCC_output"][-1:] == '/':
 JSON_ERR=0  
 if not os.path.isdir(str(parameter["BASE_DIR"])):
     JSON_ERR=1
-    print "config.json error: BASE_DIR"    
-for i in range(len(parameter["barcode_filenames"])):
-    if not os.path.isfile(str(parameter["BASE_DIR"])+str(parameter["barcode_filenames"][i])):
+    print "config.json error: BASE_DIR"  
+
+from os import listdir
+from os.path import isfile, join
+barcode_filenames = [f for f in sorted(listdir(str(parameter["BASE_DIR"]))) if isfile(join(str(parameter["BASE_DIR"]), f)) and f[:7]=="read-I1" and f[11:19] in parameter["sample_idx"]] 
+read_filenames = ['read-RA'+f[7:] for f in barcode_filenames]
+
+if len(barcode_filenames)==0:
+    JSON_ERR=1
+    print "ERROR: no barcode files (read-I1) were found in" + str(parameter["BASE_DIR"])
+
+for i in range(len(barcode_filenames)):
+    if not os.path.isfile(str(parameter["BASE_DIR"])+barcode_filenames[i]):
         JSON_ERR=1
-        print "config.json error:"+str(parameter["BASE_DIR"])+str(parameter["barcode_filenames"][i])        
-for i in range(len(parameter["read_filenames"])):
-    if not os.path.isfile(str(parameter["BASE_DIR"])+str(parameter["read_filenames"][i])):
+        print "config.json error:"+str(parameter["BASE_DIR"])+barcode_filenames[i]        
+for i in range(len(read_filenames)):
+    if not os.path.isfile(str(parameter["BASE_DIR"])+read_filenames[i]):
         JSON_ERR=1
-        print "config.json error:"+str(parameter["BASE_DIR"])+str(parameter["read_filenames"][i])     
+        print "config.json error:"+str(parameter["BASE_DIR"])+read_filenames[i]     
 
 if JSON_ERR==1: exit(1) 
 

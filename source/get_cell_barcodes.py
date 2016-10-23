@@ -1,4 +1,4 @@
-
+######### v0.2 #########
 import os
 import sys
 json_path=os.path.abspath(sys.argv[1])
@@ -19,17 +19,21 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import gzip, time, gc
 from multiprocessing import Pool
+from os import listdir
+from os.path import isfile, join
 
 import json
 with open("config.json") as json_file:
     parameter = json.load(json_file)
 
 
-print "BARCODE FILES:\n"
+barcode_filenames = [f for f in sorted(listdir(str(parameter["BASE_DIR"]))) if isfile(join(str(parameter["BASE_DIR"]), f)) and f[:7]=="read-I1" and f[11:19] in parameter["sample_idx"]]   
+
+print "BARCODE FILES ("+str(len(barcode_filenames))+"):"+'\n'
 brc_dirs=[]
-for i in range(len(parameter["barcode_filenames"])):
-    brc_dirs+=[str(parameter["BASE_DIR"])+str(parameter["barcode_filenames"][i])]
-    print brc_dirs[i]
+for i in range(len(barcode_filenames)):
+    brc_dirs+=[str(parameter["BASE_DIR"])+str(barcode_filenames[i])]
+    print brc_dirs[i] 
 random.seed()
 
 print "READING FILES.."
@@ -52,7 +56,7 @@ def encode(k):
 
 def decode(code):
     ret = ''
-    for _ in range(14):
+    for _ in range(parameter["BARCODE_LENGTH"]):
         index = code & 3
         code >>= 2
         ret = decoding_lst[index] + ret
@@ -61,8 +65,10 @@ def decode(code):
 def read_barcodes(brc_dir):
     barcodes=[]
     with gzip.open(brc_dir) as f:
-        for barcode in list(islice(f, 1, None, 4)):
-            barcodes+=[encode(barcode[:-1])]  # remove endline character
+        cnt=0
+        for line in f:
+            if cnt%4==1: barcodes+=[encode(line[:-1])]  # remove endline character
+            cnt+=1;            
     return barcodes
 
 def hamdist(s1, s2):
@@ -71,13 +77,18 @@ def hamdist(s1, s2):
 
 p=Pool()
 t0 = time.time()
-barcode_vec=p.map(read_barcodes,[brc_dirs[0],brc_dirs[1],brc_dirs[2],brc_dirs[3],brc_dirs[4],brc_dirs[5],brc_dirs[6],brc_dirs[7]] )
+barcode_vec=p.map(read_barcodes, brc_dirs )
 p.close()
 p.join()
 
-barcodes=np.array(barcode_vec[0]+barcode_vec[1]+barcode_vec[2]+barcode_vec[3]+barcode_vec[4]+
-                  barcode_vec[5]+barcode_vec[6]+barcode_vec[7],dtype='uint32')
-del barcode_vec[:];del barcode_vec
+
+#all_bars=[]
+#for i in range(len(brc_dirs)):
+#    all_bars+=barcode_vec[i]
+#barcodes=np.array(all_bars,dtype='uint32')
+barcodes = np.array([item for sublist in barcode_vec for item in sublist],dtype='uint32')
+
+del barcode_vec[:];del barcode_vec; #del all_bars
 _ = gc.collect()
 
 t1 = time.time()
@@ -136,8 +147,8 @@ for i in range(len(codewords)):
     for j in range(i+1,len(codewords)):
         Ham_dist[i,j]=hamdist(codi,decode(codewords[j]))
         Ham_dist[j,i]=Ham_dist[i,j]
-dmin=(Ham_dist+14*np.identity(len(codewords))).min(axis=1)
-### to be on the safe side correct only barcodes that have d_min>=4
+dmin=(Ham_dist+parameter["BARCODE_LENGTH"]*np.identity(len(codewords))).min(axis=1)
+### to be on the safe side we suggest to correct only barcodes that have d_min>=4
 d=parameter['dmin']
 brc_idx_to_correct=np.arange(len(codewords))[dmin>=d]
 print "number of cell barcodes to error-correct:", len(brc_idx_to_correct), "( dmin >=", d,")"

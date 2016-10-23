@@ -1,4 +1,4 @@
-
+###### v0.2 ######
 # coding: utf-8
 
 import os
@@ -31,11 +31,15 @@ import json
 with open("config.json") as json_file:
     parameter = json.load(json_file)
 
+from os import listdir
+from os.path import isfile, join
+barcode_filenames = [f for f in sorted(listdir(str(parameter["BASE_DIR"]))) if isfile(join(str(parameter["BASE_DIR"]), f)) and f[:7]=="read-I1" and f[11:19] in parameter["sample_idx"]] 
+read_filenames = ['read-RA'+f[7:] for f in barcode_filenames]
 
 print "READ FILES:\n"
 read_dirs=[]
-for i in range(len(parameter["read_filenames"])):
-    read_dirs+=[str(parameter["BASE_DIR"])+str(parameter["read_filenames"][i])]
+for i in range(len(read_filenames)):
+    read_dirs+=[str(parameter["BASE_DIR"])+read_filenames[i]]
     print read_dirs[i]
     
     
@@ -146,6 +150,7 @@ t0 = time.time()
 ret_threads=p.map(merge_barcodes, barcode_split)
 p.close(); p.join()
 
+
 ret_vec=[]
 for id in range(len(codewords)):
     idx_list=[]
@@ -153,7 +158,12 @@ for id in range(len(codewords)):
         idx_list+=ret_threads[t][id]        
     ret_vec+=[idx_list]
 
+#ret_vec=[]
+#for id in range(len(codewords)):
+#    idx_list=[item for sublist in ret_threads[:][id] for item in sublist]       
+#    ret_vec+=[idx_list]
 
+    
 t1 = time.time()
 print t1-t0, "sec"
 
@@ -182,7 +192,7 @@ if not os.path.isdir(output_dir):
 #concatenate all .gz read files
 
 command = "cat "
-for files in [read_dirs[0],read_dirs[1],read_dirs[2],read_dirs[3],read_dirs[4],read_dirs[5],read_dirs[6],read_dirs[7]]:  
+for files in read_dirs:  
     command+=files+' '
 command+="> "+all_reads_file+".gz"
 print "cat..."

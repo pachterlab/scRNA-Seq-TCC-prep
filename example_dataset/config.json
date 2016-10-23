@@ -1,26 +1,9 @@
 {
-    "NUM_THREADS": 32,
+    "NUM_THREADS": 8,
     "WINDOW": [500, 5000],
     "SOURCE_DIR": "/path/to/source/",
     "BASE_DIR": "/path/to/fastq_files/",
-    "barcode_filenames":
-         ["read-I1_si-ATCGCTCC_lane-001-chunk-001.fastq.tst.gz",
-          "read-I1_si-ATCGCTCC_lane-002-chunk-000.fastq.tst.gz",
-          "read-I1_si-CCGTACAG_lane-001-chunk-001.fastq.tst.gz",
-          "read-I1_si-CCGTACAG_lane-002-chunk-000.fastq.tst.gz",
-          "read-I1_si-GATAGGTA_lane-001-chunk-001.fastq.tst.gz",
-          "read-I1_si-GATAGGTA_lane-002-chunk-000.fastq.tst.gz",
-          "read-I1_si-TGACTAGT_lane-001-chunk-001.fastq.tst.gz",
-          "read-I1_si-TGACTAGT_lane-002-chunk-000.fastq.tst.gz"],
-    "read_filenames": 
-         ["read-RA_si-ATCGCTCC_lane-001-chunk-001.fastq.tst.gz",
-          "read-RA_si-ATCGCTCC_lane-002-chunk-000.fastq.tst.gz",
-          "read-RA_si-CCGTACAG_lane-001-chunk-001.fastq.tst.gz",
-          "read-RA_si-CCGTACAG_lane-002-chunk-000.fastq.tst.gz",
-          "read-RA_si-GATAGGTA_lane-001-chunk-001.fastq.tst.gz",
-          "read-RA_si-GATAGGTA_lane-002-chunk-000.fastq.tst.gz",
-          "read-RA_si-TGACTAGT_lane-001-chunk-001.fastq.tst.gz",
-          "read-RA_si-TGACTAGT_lane-002-chunk-000.fastq.tst.gz"],
+    "sample_idx": ["ATCGCTCC","CCGTACAG","GATAGGTA","TGACTAGT"],
     "SAVE_DIR": "/output/dir/for/save_data/",
     "dmin": 5,
     "BARCODE_LENGTH": 14,
@@ -31,3 +14,4 @@
         "TCC_output" : "/output/dir/for/TCC_output/"
     }
 }
+
