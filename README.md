@@ -29,8 +29,7 @@ Parameters needed to run the processing require specification of a `config.json`
 - WINDOW: this parameter contains a lower and upper threshold for the expected number of cells in the experiment. It is used in the determination of the number o cells in the experiment from reads coverage data.
 - SOURCE_DIR: path to the source directory that contains the .py scripts
 - BASE_DIR: this must contain the path to the (demultiplexed) FASTQ files from the sequencing. Note that our workflow does not currently demultiplex reads and you may have to do so with 10X's software; we plan to provide a demultiplexing script in the future.
-- barcode_filenames: the names of the (gzipped) barcode FASTQ files.
-- read_filenames: the names of the (gzipped) read FASTQ files.
+- sample_idx: The sample index used for the run e.g., for SI-3A-A10 -> sample_idx: ["ACAGCAAC", "CGCAATTT", "GAGTTGCG", "TTTCGCGA"].
 - SAVE_DIR: path to a directory where intermediate files will be saved.
 - dmin: the minimum distance between barcodes needed for error correction to be performed.
 - BARCODE_LENGTH: length of the barcodes.
