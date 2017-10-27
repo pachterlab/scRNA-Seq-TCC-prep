@@ -5,8 +5,8 @@ import os
 import sys
 json_path=os.path.abspath(sys.argv[1])
 if not os.path.isfile(json_path):
-    print "ERROR: Please provide path to a valid config.json file..."
-    print sys.argv[1]
+    print("ERROR: Please provide path to a valid config.json file...")
+    print(sys.argv[1])
     exit(1)
 
     
@@ -36,11 +36,11 @@ from os.path import isfile, join
 barcode_filenames = [f for f in sorted(listdir(str(parameter["BASE_DIR"]))) if isfile(join(str(parameter["BASE_DIR"]), f)) and f[:7]=="read-I1" and f[11:19] in parameter["sample_idx"]] 
 read_filenames = ['read-RA'+f[7:] for f in barcode_filenames]
 
-print "READ FILES:\n"
+print("READ FILES:\n")
 read_dirs=[]
 for i in range(len(read_filenames)):
     read_dirs+=[str(parameter["BASE_DIR"])+read_filenames[i]]
-    print read_dirs[i]
+    print(read_dirs[i])
     
     
     
@@ -84,7 +84,7 @@ def decode(code):
 #LOAD barcodes
 save_dir=str(parameter["SAVE_DIR"])
 
-print "Loading Barcodes..."
+print("Loading Barcodes...")
 t0 = time.time()
 with open(save_dir+"barcodes.dat", 'rb') as f:
     barcodes=pickle.load(f)
@@ -93,13 +93,13 @@ with open(save_dir+"codewords.dat", 'rb') as f:
 with open(save_dir+"brc_idx_to_correct.dat", 'rb') as f:
     brc_idx_to_correct= pickle.load(f)
 t1 = time.time()
-print t1-t0, "sec"
+print(t1-t0, "sec")
 
 
 # ### Error-correct barcodes
 
 # In[4]:
-chunksize=1+len(barcodes)/NUM_THREADS
+chunksize=1+int(len(barcodes)/NUM_THREADS)
 
 cw={}
 for id in range(len(codewords)):
@@ -114,8 +114,8 @@ def hamming_circle(s, n, alphabet='ATCG'):
     """Generate strings over alphabet whose Hamming distance from s is
     exactly n.
     """
-    for positions in combinations(range(len(s)), n):
-        for replacements in product(range(len(alphabet) - 1), repeat=n):
+    for positions in combinations(list(range(len(s))), n):
+        for replacements in product(list(range(len(alphabet) - 1)), repeat=n):
             cousin = list(s)
             for p, r in zip(positions, replacements):
                 if cousin[p] == alphabet[r]:
@@ -139,7 +139,7 @@ def merge_barcodes(barcs):
     return retvec
             
          
-print "Merging barcodes..." 
+print("Merging barcodes...") 
 codeword_set = set(codewords)
 codeword_list = list(codewords)
 brc_to_correct=set(codewords[brc_idx_to_correct])
@@ -165,13 +165,13 @@ for id in range(len(codewords)):
 
     
 t1 = time.time()
-print t1-t0, "sec"
+print(t1-t0, "sec")
 
 reads_per_barcode=[]
 for i in range(len(codewords)):
     reads_per_barcode+=[len(ret_vec[i])]
 NUM_OF_READS_in_CELL_BARCODES = sum(reads_per_barcode)
-print "NUM_OF_READS_in_CELL_BARCODES (after error-correct):",NUM_OF_READS_in_CELL_BARCODES 
+print("NUM_OF_READS_in_CELL_BARCODES (after error-correct):",NUM_OF_READS_in_CELL_BARCODES) 
 
 # ### Output single-cell files
 
@@ -183,7 +183,7 @@ if not os.path.isdir(output_dir):
     try:
         os.mkdir(output_dir)
     except OSError as e:
-        print "OSError({0}): {1}".format(e.errno, e.strerror)
+        print("OSError({0}): {1}".format(e.errno, e.strerror))
     
 
 
@@ -195,7 +195,7 @@ command = "cat "
 for files in read_dirs:  
     command+=files+' '
 command+="> "+all_reads_file+".gz"
-print "cat..."
+print("cat...")
 os.system(command)
 
 
@@ -204,12 +204,12 @@ os.system(command)
 # temporarilly unzip all reads
 
 t0=time.time()
-print "gunzip..."
+print("gunzip...")
 
 os.system("gunzip -f "+all_reads_file+".gz")
 
 t1=time.time()
-print t1-t0, "sec"
+print(t1-t0, "sec")
 
 
 # In[8]:
@@ -219,7 +219,7 @@ print t1-t0, "sec"
 f = open(all_reads_file)
 
 t0=time.time()
-print "line_offset..."
+print("line_offset...")
 line_offset = []
 offset = 0
 for line in f:
@@ -228,11 +228,11 @@ for line in f:
     
 f.close()
 t1=time.time()
-print t1-t0, "sec"  
+print(t1-t0, "sec")  
 
 
 NUM_OF_LINES=len(line_offset)
-print "number of reads in dataset =",NUM_OF_LINES/8
+print("number of reads in dataset =",NUM_OF_LINES/8)
 
 
 # In[9]:
@@ -243,7 +243,7 @@ f = open(all_reads_file)
 t0=time.time()
 for cell in range(len(codewords)):
     filename = "cell_"+str(cell).zfill(4)+'_'+decode(codewords[cell])
-    print "writing " + filename +"..."
+    print("writing " + filename +"...")
     output_umis=""
     output_fastq=""
     for i in ret_vec[cell]:
@@ -263,7 +263,7 @@ for cell in range(len(codewords)):
 
 f.close()
 t1=time.time()
-print t1-t0, "sec" 
+print(t1-t0, "sec") 
 
 
 # In[10]:
@@ -281,13 +281,13 @@ def gzip_fastqs(filepath):
     if filepath[-6:]==".fastq":
         os.system("gzip -f "+ filepath)
 
-print "gzip..."
+print("gzip...")
 
 p=Pool(8)
 t0 = time.time()
 p.map(gzip_fastqs, fastqfiles)
 t1 = time.time()
-print t1-t0, "sec"
+print(t1-t0, "sec")
 p.close(); p.join()
 
 
@@ -310,8 +310,8 @@ printer+="NUM_OF_READS_in_CELL_BARCODES (after error-correct): %s\n" % NUM_OF_RE
 printer+="NUMBER_OF_LINES in 'all_reads.fastq': %s\n" % NUM_OF_LINES  
 with open(save_dir+"run.info", 'a') as f:
     f.write(printer)
-print '\n'
-print printer        
+print('\n')
+print(printer)        
         
-print "DONE"    
+print("DONE")    
 
