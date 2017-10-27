@@ -99,7 +99,7 @@ print(t1-t0, "sec")
 # ### Error-correct barcodes
 
 # In[4]:
-chunksize=1+len(barcodes)/NUM_THREADS
+chunksize=1+int(len(barcodes)/NUM_THREADS)
 
 cw={}
 for id in range(len(codewords)):
