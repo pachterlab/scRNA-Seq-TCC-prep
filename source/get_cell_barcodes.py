@@ -3,8 +3,8 @@ import os
 import sys
 json_path=os.path.abspath(sys.argv[1])
 if not os.path.isfile(json_path):
-    print "ERROR: Please provide path to a valid config.json file..."
-    print sys.argv[1]
+    print("ERROR: Please provide path to a valid config.json file...")
+    print(sys.argv[1])
     exit(1)
 
     
@@ -29,14 +29,14 @@ with open("config.json") as json_file:
 
 barcode_filenames = [f for f in sorted(listdir(str(parameter["BASE_DIR"]))) if isfile(join(str(parameter["BASE_DIR"]), f)) and f[:7]=="read-I1" and f[11:19] in parameter["sample_idx"]]   
 
-print "BARCODE FILES ("+str(len(barcode_filenames))+"):"+'\n'
+print("BARCODE FILES ("+str(len(barcode_filenames))+"):"+'\n')
 brc_dirs=[]
 for i in range(len(barcode_filenames)):
     brc_dirs+=[str(parameter["BASE_DIR"])+str(barcode_filenames[i])]
-    print brc_dirs[i] 
+    print(brc_dirs[i]) 
 random.seed()
 
-print "READING FILES.."
+print("READING FILES..")
 
 def encoding_map(ch):
     if ch=='A':return 0
@@ -92,20 +92,20 @@ del barcode_vec[:];del barcode_vec; #del all_bars
 _ = gc.collect()
 
 t1 = time.time()
-print t1-t0, "sec"
+print(t1-t0, "sec")
 
-print "Barcodes:\n"
+print("Barcodes:\n")
 for bar in barcodes[:10]:
-       print decode(bar)
-print "..."
+       print(decode(bar))
+print("...")
 NUMBER_OF_SEQUENCED_BARCODES=len(barcodes)
-print "NUMBER_OF_SEQUENCED_BARCODES =",NUMBER_OF_SEQUENCED_BARCODES
+print("NUMBER_OF_SEQUENCED_BARCODES =",NUMBER_OF_SEQUENCED_BARCODES)
 
-print "Detecting Cells..."
+print("Detecting Cells...")
 
 counts = Counter(barcodes)
 
-labels, values = zip(*counts.items())
+labels, values = list(zip(*list(counts.items())))
 
 # sort your values in descending order
 indSort = np.argsort(values)[::-1]
@@ -117,14 +117,14 @@ values = np.array(values)[indSort]
 indices = np.arange(len(labels))
 
 NUM_OF_DISTINCT_BARCODES=len(indices)
-print "NUM_OF_DISTINCT_BARCODES =",NUM_OF_DISTINCT_BARCODES
+print("NUM_OF_DISTINCT_BARCODES =",NUM_OF_DISTINCT_BARCODES)
 
 
 
 # By default we look for a number of cells in a window of 500 to 5000. 
 # WINDOW = [500,5000]
 WINDOW=parameter["WINDOW"]
-print "CELL_WINDOW:", WINDOW
+print("CELL_WINDOW:", WINDOW)
 
 from scipy.signal import savgol_filter as savgol
 valdiff=np.diff((values))
@@ -132,14 +132,14 @@ yhat = savgol(valdiff, 151, 1)
 
 
 NUM_OF_BARCODES=np.argmax(-yhat[WINDOW[0]:WINDOW[1]])+WINDOW[0]
-print "Cell_barcodes_detected:",NUM_OF_BARCODES
+print("Cell_barcodes_detected:",NUM_OF_BARCODES)
 
 NUM_OF_READS_in_CELL_BARCODES = sum(values[:NUM_OF_BARCODES])
-print "NUM_OF_READS_in_CELL_BARCODES =",NUM_OF_READS_in_CELL_BARCODES
+print("NUM_OF_READS_in_CELL_BARCODES =",NUM_OF_READS_in_CELL_BARCODES)
 
 codewords=labels[:NUM_OF_BARCODES]
 
-print "Calculating d_min..."
+print("Calculating d_min...")
 
 Ham_dist=np.zeros([len(codewords),len(codewords)])
 for i in range(len(codewords)):
@@ -151,13 +151,13 @@ dmin=(Ham_dist+parameter["BARCODE_LENGTH"]*np.identity(len(codewords))).min(axis
 ### to be on the safe side we suggest to correct only barcodes that have d_min>=4
 d=parameter['dmin']
 brc_idx_to_correct=np.arange(len(codewords))[dmin>=d]
-print "number of cell barcodes to error-correct:", len(brc_idx_to_correct), "( dmin >=", d,")"
+print("number of cell barcodes to error-correct:", len(brc_idx_to_correct), "( dmin >=", d,")")
 
 ## CLEANUP
 del indices; del labels; del values; del counts; del valdiff; del indSort; del Ham_dist; del dmin
 _ = gc.collect()
 
-print "Writing output..."
+print("Writing output...")
 
 import pickle
 
@@ -169,7 +169,7 @@ if not os.path.isdir(save_dir):
     try:
         os.mkdir(save_dir)
     except OSError as e:
-        print "OSError({0}): {1}".format(e.errno, e.strerror)
+        print("OSError({0}): {1}".format(e.errno, e.strerror))
 
 with open(save_dir+"barcodes.dat", 'wb') as f:
     pickle.dump(barcodes,f)
@@ -185,8 +185,8 @@ printer+="NUM_OF_READS_in_CELL_BARCODES: %s\n" % NUM_OF_READS_in_CELL_BARCODES
 printer+="NUM_OF_CELL_BARCODES_to_CORRECT %s (dmin >=%s)\n" % (len(brc_idx_to_correct), d)    
 with open(save_dir+"run.info", 'wb') as f:
     f.write(printer)
-print '\n'
-print printer
-print "DONE."
+print('\n')
+print(printer)
+print("DONE.")
 
 

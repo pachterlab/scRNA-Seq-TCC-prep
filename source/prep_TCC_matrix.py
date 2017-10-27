@@ -3,15 +3,15 @@ import sys, gc
 
 json_path=os.path.abspath(sys.argv[1])
 if not os.path.isfile(json_path):
-    print "ERROR: Please provide path to a valid config.json file..."
-    print sys.argv[1]
+    print("ERROR: Please provide path to a valid config.json file...")
+    print(sys.argv[1])
     exit(1)
     
 import json
 with open(json_path) as json_file:
     parameter = json.load(json_file)
 
-print "Number of threads", parameter["NUM_THREADS"]
+print("Number of threads", parameter["NUM_THREADS"])
 
 # Load dataset
 
@@ -25,7 +25,7 @@ from sklearn.preprocessing import normalize
 ecfile_dir = parameter["kallisto"]["TCC_output"]+"matrix.ec"
 tsvfile_dir = parameter["kallisto"]["TCC_output"]+"matrix.tsv"
 
-print "Loading TCCs.."
+print("Loading TCCs..")
 
 COOinput = np.loadtxt( tsvfile_dir, delimiter='\t' , dtype=int)
 rows,cols,data = COOinput.T
@@ -35,7 +35,7 @@ map_cols = { val:ind for ind,val in enumerate( np.unique(cols) ) }
 TCCmatrix   = coo_matrix( (data.astype(float),( [map_rows[r] for r in rows], [map_cols[c] for c in cols]) ) ) 
 
 NUM_OF_CELLS = TCCmatrix.shape[1]
-print "NUM_OF_CELLS =", NUM_OF_CELLS
+print("NUM_OF_CELLS =", NUM_OF_CELLS)
       
 T = TCCmatrix.tocsr()
 T_norm = normalize(T, norm='l1', axis=0) 
@@ -63,12 +63,12 @@ def L1_distance(p,q):
 #     return np.sqrt(entropy(m)-0.5*entropy(q)-0.5*entropy(p))
 
 num_of_threads = parameter["NUM_THREADS"]
-print "Calculating pairwise L1 distances... ( num_threads =",num_of_threads,")"
+print("Calculating pairwise L1 distances... ( num_threads =",num_of_threads,")")
 
 # D_js = pairwise_distances(T_normT,metric=jensen_shannon,n_jobs=num_of_threads)
 D_l1 = pairwise_distances(T_normT,metric=L1_distance,n_jobs=num_of_threads)
 
-print "writing data..."
+print("writing data...")
 
 #Save data
 import pickle
@@ -80,7 +80,7 @@ with open(parameter["SAVE_DIR"]+"pwise_dist_L1.dat", 'wb') as f:
 with open(parameter["SAVE_DIR"]+"nonzero_ec.dat", 'wb') as f:
     pickle.dump(nonzero_ec,f)
 
-print "DONE."
+print("DONE.")
 
 
 
