@@ -11,7 +11,7 @@ Note: The scripts are modified to support data generated with 10X Chromium 3' SC
 
 #### Getting started
 
-The [getting started](http://) tutorial explains how to process the small example in the [example_dataset](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/10xTCCprep-SC3Pv2/example_dataset) directory. This is a good starting point to make sure that the necessary programs are correctly installed. Note that you will need kallisto (≥ 0.43.0), python (≥ 3.x.x) and Juypter Notebook (≥ 4.0.6) installed (the Jupyter requirement is not strictly necessary but highly recommended). 
+The [getting started](http://) tutorial (TBD) explains how to process the small example in the [example_dataset](https://github.com/lakigigar/scRNA-Seq-TCC-prep/tree/10xTCCprep-SC3Pv2/example_dataset) directory. This is a good starting point to make sure that the necessary programs are correctly installed. Note that you will need kallisto (≥ 0.43.0), python (≥ 3.x.x) and Juypter Notebook (≥ 4.0.6) installed (the Jupyter requirement is not strictly necessary but highly recommended). 
 
 
 #### Workflow organization
