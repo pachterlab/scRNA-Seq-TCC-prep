@@ -1,5 +1,6 @@
 import os
 import sys
+import pdb
 
 json_path=os.path.abspath(sys.argv[1])
 if not os.path.isfile(json_path):
@@ -150,7 +151,7 @@ def read_barcodes(brc_dir):
         cnt=0
         for line in f:
             if cnt%4==1:
-                line=line.decode('UTF-8')
+                #line=line.decode('UTF-8')
                 if len(line) <= parameter["BARCODE_LENGTH"]:
                     seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + 10 - (len(line)-1)))
                     line = line[0:-1] + seq_added
@@ -171,10 +172,11 @@ print("\n\n___________________GET_CELL_BARCODES___________________")
 barcodes_per_sample=[]
 for i_S in range(len(SAMPLE_NAMES)):
     print("reading barcodes for sample "+SAMPLE_NAMES[i_S]+':')
-    brc_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample
+    brc_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample[0]
     
     p=Pool(NUM_THREADS)
     t0 = time.time()
+    pdb.set_trace()
     barcode_vec=p.map(read_barcodes, brc_dirs )
     p.close()
     p.join()
@@ -192,7 +194,7 @@ print(t1-t0, "sec")
 
 for i_S in range(len(SAMPLE_NAMES)):
     print(SAMPLE_NAMES[i_S]+" barcodes:\n")
-    barcodes = barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample
+    barcodes = barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample[0]
     for bar in barcodes[:10]:
            print(' '+decode(bar))
     print(" ...")
@@ -205,7 +207,7 @@ if parameter["use_precomputed_barcodes"]==0:
     for i_S in range(len(SAMPLE_NAMES)):
 
         print("Detecting Cells for "+SAMPLE_NAMES[i_S]+" ...")
-        barcodes = barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample
+        barcodes = barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample[0]
 
         counts = Counter(barcodes)
         labels, values = zip(*counts.items())
@@ -281,7 +283,7 @@ brc_idx_to_correct_per_sample=[]
 for i_S in range(len(SAMPLE_NAMES)):
     print("\nCalculating d_min for "+SAMPLE_NAMES[i_S]+" ...")
     
-    codewords=codewords_per_sample[i_S] if len(SAMPLE_NAMES)>1 else codewords_per_sample
+    codewords=codewords_per_sample[i_S] if len(SAMPLE_NAMES)>1 else codewords_per_sample[0]
     p=Pool(NUM_THREADS)
     ret_vec=p.map(is_far_enough, np.arange(len(codewords)) )
     p.close()
@@ -304,9 +306,9 @@ save_dir=str(parameter["SAVE_DIR"])
 
         
 for i_S in range(len(SAMPLE_NAMES)):
-    barcodes=barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample
-    codewords=codewords_per_sample[i_S] if len(SAMPLE_NAMES)>1 else codewords_per_sample
-    brc_idx_to_correct=brc_idx_to_correct_per_sample[i_S] if len(SAMPLE_NAMES)>1 else brc_idx_to_correct_per_sample
+    barcodes=barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample[0]
+    codewords=codewords_per_sample[i_S] if len(SAMPLE_NAMES)>1 else codewords_per_sample[0]
+    brc_idx_to_correct=brc_idx_to_correct_per_sample[i_S] if len(SAMPLE_NAMES)>1 else brc_idx_to_correct_per_sample[0]
     with open(save_dir+SAMPLE_NAMES[i_S]+"_barcodes.dat", 'wb') as f:
         pickle.dump(barcodes,f)
     with open(save_dir+SAMPLE_NAMES[i_S]+"_codewords.dat", 'wb') as f:

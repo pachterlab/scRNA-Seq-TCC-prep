@@ -255,8 +255,8 @@ for i_S in range(len(SAMPLE_NAMES)):
         except OSError as e:
             print("OSError({0}): {1}".format(e.errno, e.strerror))
     
-    barcode_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample
-    read_dirs = read_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else read_dirs_per_sample
+    barcode_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample[0]
+    read_dirs = read_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else read_dirs_per_sample[0]
     
     #concatenate all .gz umi files
     print("Concatenating Files...")
@@ -306,14 +306,14 @@ for i_S in range(len(SAMPLE_NAMES)):
         output_check=""
         output_check_seq = ""
         for i in ret_vec[cell]:
-            temp=ln.getline(all_reads_file,i+1)
+            temp=ln.getline(all_reads_file,4*i+1)
             output_check_seq=temp
-            output_check=ln.getline(all_reads_file_umi,i+1)
+            output_check=ln.getline(all_reads_file_umi,4*i+1)
             if output_check_seq.split(' ')[0] == output_check.split(' ')[0]:
                 output_fastq+=temp
                 for l in range(2,5):
-                    output_fastq+=ln.getline(all_reads_file,i+l)
-                temp1=ln.getline(all_reads_file_umi,i+2)
+                    output_fastq+=ln.getline(all_reads_file,4*i+l)
+                temp1=ln.getline(all_reads_file_umi,4*i+2)
                 output_umis+=temp1[16:26]+"\n"
         with open(output_dir+filename+".umi", 'w') as umi:
             umi.write(output_umis)
