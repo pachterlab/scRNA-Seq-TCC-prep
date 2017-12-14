@@ -1,6 +1,5 @@
 import os
 import sys
-import pdb
 
 json_path=os.path.abspath(sys.argv[1])
 if not os.path.isfile(json_path):
@@ -151,7 +150,7 @@ def read_barcodes(brc_dir):
         cnt=0
         for line in f:
             if cnt%4==1:
-                #line=line.decode('UTF-8')
+                line=line.decode('UTF-8')
                 if len(line) <= parameter["BARCODE_LENGTH"]:
                     seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + 10 - (len(line)-1)))
                     line = line[0:-1] + seq_added
