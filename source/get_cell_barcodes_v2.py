@@ -79,16 +79,29 @@ for i_S in range(len(SAMPLE_NAMES)):
     read_dirs = []
     for i_F in range(len(FASTQ_DIRS)):
         for f in sorted(listdir(str(FASTQ_DIRS[i_F]))):
-            pattern = r"^"+str(SAMPLE_NAMES[i_S])+"_S\d+_L00\d_([IR]\d)_001.fastq.gz"
-            match = re.match(pattern, f)
-            if match:
-                barcode_name = match.group(1)
-            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R1':
+            
+            if (isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and 
+                f[-8:]=='fastq.gz' and f.find('R1')>0):
+                
                 barcode_filenames.append(f)
                 barcode_dirs.append(str(FASTQ_DIRS[i_F])+f)
-            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R2':
+                
+            if (isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and 
+                f[-8:]=='fastq.gz' and f.find('R2')>0):
+                
                 read_filenames.append(f)
                 read_dirs.append(str(FASTQ_DIRS[i_F])+f)
+                
+#            pattern = r"^"+str(SAMPLE_NAMES[i_S])+"_S\d+_L00\d_([IR]\d)_001.fastq.gz"
+#            match = re.match(pattern, f)
+#            if match:
+#                barcode_name = match.group(1)
+#            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R1':
+#                barcode_filenames.append(f)
+#                barcode_dirs.append(str(FASTQ_DIRS[i_F])+f)
+#            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R2':
+#                read_filenames.append(f)
+#                read_dirs.append(str(FASTQ_DIRS[i_F])+f)
     barcode_filenames_per_sample += [barcode_filenames]
     barcode_dirs_per_sample += [barcode_dirs]
     read_filenames_per_sample += [read_filenames]
@@ -143,7 +156,7 @@ def decode(code):
         ret = decoding_lst[index] + ret
     return ret
 
-def read_barcodes(brc_dir):
+def read_barcodes_(brc_dir):
     print(" Reading from "+brc_dir)
     barcodes=[]
     with gzip.open(brc_dir) as f:
@@ -152,7 +165,7 @@ def read_barcodes(brc_dir):
             if cnt%4==1:
                 line=line.decode('UTF-8')
                 if len(line) <= parameter["BARCODE_LENGTH"]:
-                    seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + 10 - (len(line)-1)))
+                    seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + parameter["UMI_LENGTH"] - (len(line)-1)))
                     line = line[0:-1] + seq_added
                     print(brc_dir)
                     print(cnt, line)
@@ -160,6 +173,50 @@ def read_barcodes(brc_dir):
                 else: 
                     barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barcode from barcode 
             cnt+=1;            
+    return barcodes
+
+import io
+def read_barcodes_io(brc_dir):
+    print(" Reading from "+brc_dir)
+    barcodes=[]
+    with gzip.open(brc_dir,'rb') as gz:
+        cnt=0
+        with io.BufferedReader(gz) as f:
+            for line in f:
+                if cnt%4==1:
+                    line=line.decode('UTF-8')
+                    if len(line) <= parameter["BARCODE_LENGTH"]:
+                        seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + parameter["UMI_LENGTH"] - (len(line)-1)))
+                        line = line[0:-1] + seq_added
+                        print(brc_dir)
+                        print(cnt, line)
+                        barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barecode 
+                    else: 
+                        barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barcode from barcode 
+                cnt+=1;            
+    return barcodes
+
+import subprocess  
+def read_barcodes_zcat(brc_dir):
+    print(" Reading from "+brc_dir)
+    barcodes=[]
+    p = subprocess.Popen(
+        ["zcat", brc_dir],
+        stdout=subprocess.PIPE
+    )
+    cnt=0
+    for line in p.stdout:
+        if cnt%4==1:
+            line=line.decode('UTF-8')
+            if len(line) <= parameter["BARCODE_LENGTH"]:
+                seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + parameter["UMI_LENGTH"] - (len(line)-1)))
+                line = line[0:-1] + seq_added
+                print(brc_dir)
+                print(cnt, line)
+                barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barecode 
+            else: 
+                barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barcode from barcode 
+        cnt+=1;            
     return barcodes
 
 def hamdist(s1, s2):
@@ -170,21 +227,21 @@ print("\n\n___________________GET_CELL_BARCODES___________________")
 ####### READ BARCODES for each sample
 barcodes_per_sample=[]
 for i_S in range(len(SAMPLE_NAMES)):
-    print("reading barcodes for sample "+SAMPLE_NAMES[i_S]+':')
+    print("READ_BARCODES for sample "+SAMPLE_NAMES[i_S]+':')
     brc_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample[0]
     
-    p=Pool(NUM_THREADS)
-    t0 = time.time()
-    pdb.set_trace()
-    barcode_vec=p.map(read_barcodes, brc_dirs )
-    p.close()
-    p.join()
-
-    barcodes = np.array([item for sublist in barcode_vec for item in sublist],dtype='uint32')
-
-    del barcode_vec[:];del barcode_vec; #del all_bars
-    _ = gc.collect()
-    
+    if len(brc_dirs)>1:
+        p=Pool(np.min([len(brc_dirs),NUM_THREADS]))
+        t0 = time.time()
+        barcode_vec=p.map(read_barcodes_io, brc_dirs )
+        p.close()
+        p.join()
+        barcodes = np.array([item for sublist in barcode_vec for item in sublist],dtype='uint32') 
+        del barcode_vec[:];del barcode_vec; #del all_bars
+        _ = gc.collect()
+    else:
+        barcodes=read_barcodes_zcat(brc_dirs[0])
+        
     barcodes_per_sample +=[barcodes]
     print('')
 

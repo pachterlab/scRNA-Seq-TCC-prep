@@ -71,16 +71,29 @@ for i_S in range(len(SAMPLE_NAMES)):
     read_dirs = []
     for i_F in range(len(FASTQ_DIRS)):
         for f in sorted(listdir(str(FASTQ_DIRS[i_F]))):
-            pattern = r"^"+str(SAMPLE_NAMES[i_S])+"_S\d+_L00\d_([IR]\d)_001.fastq.gz"
-            match = re.match(pattern, f)
-            if match:
-                barcode_name = match.group(1)
-            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R1':
+            
+            if (isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and 
+                f[-8:]=='fastq.gz' and f.find('R1')>0):
+                
                 barcode_filenames.append(f)
                 barcode_dirs.append(str(FASTQ_DIRS[i_F])+f)
-            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R2':
+                
+            if (isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and 
+                f[-8:]=='fastq.gz' and f.find('R2')>0):
+                
                 read_filenames.append(f)
                 read_dirs.append(str(FASTQ_DIRS[i_F])+f)
+                
+#            pattern = r"^"+str(SAMPLE_NAMES[i_S])+"_S\d+_L00\d_([IR]\d)_001.fastq.gz"
+#            match = re.match(pattern, f)
+#            if match:
+#                barcode_name = match.group(1)
+#            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R1':
+#                barcode_filenames.append(f)
+#                barcode_dirs.append(str(FASTQ_DIRS[i_F])+f)
+#            if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R2':
+#                read_filenames.append(f)
+#                read_dirs.append(str(FASTQ_DIRS[i_F])+f)
     barcode_filenames_per_sample += [barcode_filenames]
     barcode_dirs_per_sample += [barcode_dirs]
     read_filenames_per_sample += [read_filenames]
@@ -105,6 +118,7 @@ for i_S in range(len(SAMPLE_NAMES)):
 print("\n\n___________________ERROR_CORRECT_AND_SPLIT___________________")
 
 BARCODE_LENGTH=parameter['BARCODE_LENGTH']
+UMI_LENGTH=parameter['UMI_LENGTH']
 output_dir = parameter['OUTPUT_DIR']
 NUM_THREADS = parameter['NUM_THREADS']
 
@@ -314,7 +328,7 @@ for i_S in range(len(SAMPLE_NAMES)):
                 for l in range(2,5):
                     output_fastq+=ln.getline(all_reads_file,4*i+l)
                 temp1=ln.getline(all_reads_file_umi,4*i+2)
-                output_umis+=temp1[16:26]+"\n"
+                output_umis+=temp1[BARCODE_LENGTH:BARCODE_LENGTH+UMI_LENGTH]+"\n"
         with open(output_dir+filename+".umi", 'w') as umi:
             umi.write(output_umis)
         with open(output_dir+filename+".fastq", 'w') as reads:
