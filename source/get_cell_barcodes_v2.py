@@ -184,15 +184,7 @@ def read_barcodes_io(brc_dir):
         with io.BufferedReader(gz) as f:
             for line in f:
                 if cnt%4==1:
-                    line=line.decode('UTF-8')
-                    if len(line) <= parameter["BARCODE_LENGTH"]:
-                        seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + parameter["UMI_LENGTH"] - (len(line)-1)))
-                        line = line[0:-1] + seq_added
-                        print(brc_dir)
-                        print(cnt, line)
-                        barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barecode 
-                    else: 
-                        barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barcode from barcode 
+                    barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]].decode('UTF-8'))]  # extract barcode from barcode 
                 cnt+=1;            
     return barcodes
 
@@ -207,21 +199,12 @@ def read_barcodes_zcat(brc_dir):
     cnt=0
     for line in p.stdout:
         if cnt%4==1:
-            line=line.decode('UTF-8')
-            if len(line) <= parameter["BARCODE_LENGTH"]:
-                seq_added = "".join('N' for i in range(parameter["BARCODE_LENGTH"] + parameter["UMI_LENGTH"] - (len(line)-1)))
-                line = line[0:-1] + seq_added
-                print(brc_dir)
-                print(cnt, line)
-                barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barecode 
-            else: 
-                barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]])]  # extract barcode from barcode 
-        cnt+=1;            
+            barcodes+=[encode(line[0:parameter["BARCODE_LENGTH"]].decode('UTF-8'))]  # extract barcode from barcode 
+        cnt+=1;             
     return barcodes
 
 def hamdist(s1, s2):
     return sum(ch1 != ch2 for ch1, ch2 in zip(s1, s2))
-
 
 print("\n\n___________________GET_CELL_BARCODES___________________")
 ####### READ BARCODES for each sample
@@ -229,10 +212,9 @@ barcodes_per_sample=[]
 for i_S in range(len(SAMPLE_NAMES)):
     print("READ_BARCODES for sample "+SAMPLE_NAMES[i_S]+':')
     brc_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample[0]
-    
+    t0 = time.time()
     if len(brc_dirs)>1:
         p=Pool(np.min([len(brc_dirs),NUM_THREADS]))
-        t0 = time.time()
         barcode_vec=p.map(read_barcodes_io, brc_dirs )
         p.close()
         p.join()

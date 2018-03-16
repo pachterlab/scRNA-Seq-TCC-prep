@@ -260,7 +260,7 @@ for i_S in range(len(SAMPLE_NAMES)):
     #temporary file to extract all reads
     all_reads_file = str(parameter["SAVE_DIR"])+'all_reads.fastq'
     all_reads_file_umi = str(parameter["SAVE_DIR"])+'all_umi.fastq'
-    
+
     #create output directory
     import os
     if not os.path.isdir(output_dir):
@@ -268,14 +268,14 @@ for i_S in range(len(SAMPLE_NAMES)):
             os.mkdir(output_dir)
         except OSError as e:
             print("OSError({0}): {1}".format(e.errno, e.strerror))
-    
+
     barcode_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample[0]
     read_dirs = read_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else read_dirs_per_sample[0]
-    
+
     #concatenate all .gz umi files
     print("Concatenating Files...")
     def parallel_cat(inputvec):
-        
+
         outfile=inputvec[0][0]
         dirs=inputvec[1][0]
         command = "cat "
@@ -284,7 +284,7 @@ for i_S in range(len(SAMPLE_NAMES)):
         command+="> "+outfile+".gz"
         os.system(command)
 
-    
+
     conc_params=[ [[all_reads_file_umi],[barcode_dirs]],[[all_reads_file],[read_dirs]]]
     p=Pool(2)
     t0 = time.time()
@@ -294,55 +294,93 @@ for i_S in range(len(SAMPLE_NAMES)):
     p.close(); p.join()
 
 
-    
+
+    n_files=30
+    tot=len(barcodes)*4
+    li=int(np.divide(tot,n_files)-np.mod(np.divide(tot,n_files),4)+4)
+    #print(str(li))
+
+
+
     # temporarilly unzip all reads
     print("temporarilly unzipping all_read files...")
-    def parallel_gunzip(file):
-        os.system("gunzip -f "+file+".gz")
+    def parallel_zcat_split(file):    
+        os.chdir(str(parameter["SAVE_DIR"]))
+        os.system('zcat '+file+'.gz | split -l '+str(li)+' --numeric-suffixes - '+file.split('/')[-1]+'_')
     p=Pool(2)
     t0 = time.time()
-    p.map(parallel_gunzip, [all_reads_file_umi,all_reads_file])
+    p.map(parallel_zcat_split, [all_reads_file_umi,all_reads_file])
+    os.chdir(workpath)
     t1 = time.time()
     print(t1-t0, "sec")
-    p.close(); p.join()    
+    p.close(); p.join()   
+    
+    os.system("rm "+all_reads_file_umi+'.gz')
+    os.system("rm "+all_reads_file+'.gz')
+    
+    ALL_reads_file = [all_reads_file+'_%02.d' %  i for i in range(n_files)]
+    ALL_reads_file_umi = [all_reads_file_umi+'_%02.d' %  i for i in range(n_files)]
 
     
     
     # Split single-cell files and umis ( using linecache.getline() )
-    
+
     t0=time.time()
-    
-    for cell in range(len(codewords)):
-        filename = SAMPLE_NAMES[i_S]+"_cell_"+str(cell).zfill(4)+'_'+decode(codewords[cell])
-        print("writing " + filename +"...\033[K",end='\r')
-        output_umis=""
-        output_fastq=""
-        output_check=""
-        output_check_seq = ""
-        for i in ret_vec[cell]:
-            temp=ln.getline(all_reads_file,4*i+1)
-            output_check_seq=temp
-            output_check=ln.getline(all_reads_file_umi,4*i+1)
-            if output_check_seq.split(' ')[0] == output_check.split(' ')[0]:
-                output_fastq+=temp
-                for l in range(2,5):
-                    output_fastq+=ln.getline(all_reads_file,4*i+l)
-                temp1=ln.getline(all_reads_file_umi,4*i+2)
-                output_umis+=temp1[BARCODE_LENGTH:BARCODE_LENGTH+UMI_LENGTH]+"\n"
-        with open(output_dir+filename+".umi", 'w') as umi:
-            umi.write(output_umis)
-        with open(output_dir+filename+".fastq", 'w') as reads:
-            reads.write(output_fastq)
+    for fi in range(n_files):
+        hi,lo=((fi+1)*li/4,fi*li/4)
+        if fi>0: append_write = 'a' # append if already exists
+        else:append_write = 'w' # make a new file if not   
+
+        for cell in range(len(codewords)):
+            filename = SAMPLE_NAMES[i_S]+"_cell_"+str(cell).zfill(4)+'_'+decode(codewords[cell])
+            print("writing " + filename +' part-'+str(fi)+"...\033[K",end='\r')
+            output_umis=""
+            output_fastq=""
+    #         output_check=""
+    #         output_check_seq = ""
+            for i in [j for j in ret_vec[cell] if (j<hi and j>=lo)]:
+                adjusted_4i=np.mod(4*i,li)
+                for l in range(1,5):
+                    output_fastq+=ln.getline(ALL_reads_file[fi],adjusted_4i+l)
+    #             temp1=ln.getline(ALL_reads_file_umi[fi],adjusted_4i+2)
+    #             output_umis+=temp1[BARCODE_LENGTH:BARCODE_LENGTH+UMI_LENGTH]+"\n"
+                output_umis+=ln.getline(ALL_reads_file_umi[fi],adjusted_4i+2)[BARCODE_LENGTH:BARCODE_LENGTH+UMI_LENGTH]+"\n"
+
+
+
+
+    #             temp=ln.getline(ALL_reads_file[fi],adjusted_4i+1)
+    #             output_check_seq=temp
+    #             output_check=ln.getline(ALL_reads_file_umi[fi],adjusted_4i+1)
+    #             if output_check_seq.split(' ')[0] == output_check.split(' ')[0]:
+    #                 output_fastq+=temp
+    #                 for l in range(2,5):
+    #                     output_fastq+=ln.getline(ALL_reads_file[fi],adjusted_4i+l)
+    #                 temp1=ln.getline(ALL_reads_file_umi[fi],adjusted_4i+2)
+    #                 output_umis+=temp1[BARCODE_LENGTH:BARCODE_LENGTH+UMI_LENGTH]+"\n"
+
+
+
+
+            with open(output_dir+filename+".umi", append_write) as umi:
+                umi.write(output_umis)
+            with open(output_dir+filename+".fastq", append_write) as reads:
+                reads.write(output_fastq)
+        ln.clearcache()
+
     print('')
-    
-    
+
+
     t1=time.time()
     print( t1-t0, "sec")
 
+
+
     #remove temp all_reads file
-    os.system("rm "+all_reads_file)
-    os.system("rm "+all_reads_file_umi)
-    print("------------------ finished error_correct_and_split for"+SAMPLE_NAMES[i_S])
+    os.system("rm -r "+' '.join(ALL_reads_file))
+    os.system("rm -r "+' '.join(ALL_reads_file_umi))
+    ln.clearcache()
+    print("------------------ finished error_correct_and_split for "+SAMPLE_NAMES[i_S])
     
     
     
