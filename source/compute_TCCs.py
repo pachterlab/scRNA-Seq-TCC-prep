@@ -16,6 +16,7 @@ print("\n\n___________________COMPUTE_TCCs___________________")
 kallisto_cmd= parameter["kallisto"]["binary"]+" pseudo -i "+parameter["kallisto"]["index"]+" -o "+parameter["kallisto"]["TCC_output"]+" --umi -b "+parameter["OUTPUT_DIR"]+"umi_read_list.txt"+" -t "+str(parameter["NUM_THREADS"])
 
 print("Running kallisto pseudo:")
+sys.stdout.flush()
 print(kallisto_cmd)
 
 os.system(kallisto_cmd)

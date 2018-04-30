@@ -135,7 +135,8 @@ try:
     print("\n----------------------------------------------------------------------------------------")   
 except:
     print("ERROR loading R1 and/or R2 files for samples: "+str(SAMPLE_NAMES))
-    
+
+sys.stdout.flush()
 os.chdir(parameter["SOURCE_DIR"])
 skip=''
 try:

@@ -194,7 +194,7 @@ def merge_barcodes(barcs):
 #LOAD barcodes
 save_dir=str(parameter["SAVE_DIR"])
 for i_S in range(len(SAMPLE_NAMES)):
-    print( "Loading Barcodes for "+SAMPLE_NAMES[i_S]+'...')
+    print( "Loading Barcodes for "+SAMPLE_NAMES[i_S]+'...',flush=True)
     t0 = time.time()
     with open(save_dir+SAMPLE_NAMES[i_S]+"_barcodes.dat", 'rb') as f:
         barcodes=pickle.load(f)
@@ -220,7 +220,8 @@ for i_S in range(len(SAMPLE_NAMES)):
     for i in range(0, len(barcodes), chunksize):
         barcode_split+=[[i,barcodes[i:i+chunksize]]]
 
-    print("Merging barcodes for "+SAMPLE_NAMES[i_S]+'...')
+    print("Merging barcodes for "+SAMPLE_NAMES[i_S]+'...',flush=True)
+    sys.stdout.flush()
     codeword_set = set(codewords)
     codeword_list = list(codewords)
     brc_to_correct=set(codewords[brc_idx_to_correct])
@@ -273,7 +274,8 @@ for i_S in range(len(SAMPLE_NAMES)):
     read_dirs = read_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else read_dirs_per_sample[0]
 
     #concatenate all .gz umi files
-    print("Concatenating Files...")
+    print("Concatenating Files...",flush=True)
+    sys.stdout.flush()
     def parallel_cat(inputvec):
 
         outfile=inputvec[0][0]
@@ -303,7 +305,8 @@ for i_S in range(len(SAMPLE_NAMES)):
 
 
     # temporarilly unzip all reads
-    print("temporarilly unzipping all_read files...")
+    print("temporarilly unzipping all_read files...",flush=True)
+    sys.stdout.flush()
     def parallel_zcat_split(file):    
         os.chdir(str(parameter["SAVE_DIR"]))
         os.system('zcat '+file+'.gz | split -l '+str(li)+' --numeric-suffixes - '+file.split('/')[-1]+'_')
@@ -333,7 +336,7 @@ for i_S in range(len(SAMPLE_NAMES)):
 
         for cell in range(len(codewords)):
             filename = SAMPLE_NAMES[i_S]+"_cell_"+str(cell).zfill(4)+'_'+decode(codewords[cell])
-            print("writing " + filename +' part-'+str(fi)+"...\033[K",end='\r')
+            print("writing " + filename +' part-'+str(fi)+"...\033[K",end='\r',flush=True)
             output_umis=""
             output_fastq=""
     #         output_check=""
@@ -361,7 +364,7 @@ for i_S in range(len(SAMPLE_NAMES)):
 
 
 
-
+            sys.stdout.flush()
             with open(output_dir+filename+".umi", append_write) as umi:
                 umi.write(output_umis)
             with open(output_dir+filename+".fastq", append_write) as reads:
@@ -400,7 +403,8 @@ def gzip_fastqs(filepath):
     if filepath[-6:]==".fastq":
         os.system("gzip -f "+ filepath)
 
-print("Compressing output with gzip...")
+print("Compressing output with gzip...",flush=True)
+sys.stdout.flush()
 
 p=Pool(NUM_THREADS)
 t0 = time.time()

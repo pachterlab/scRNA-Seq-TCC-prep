@@ -190,7 +190,7 @@ def read_barcodes_io(brc_dir):
 
 import subprocess  
 def read_barcodes_zcat(brc_dir):
-    print(" Reading from "+brc_dir)
+    print(" Reading from "+brc_dir,flush=True)
     barcodes=[]
     p = subprocess.Popen(
         ["zcat", brc_dir],
@@ -210,7 +210,7 @@ print("\n\n___________________GET_CELL_BARCODES___________________")
 ####### READ BARCODES for each sample
 barcodes_per_sample=[]
 for i_S in range(len(SAMPLE_NAMES)):
-    print("READ_BARCODES for sample "+SAMPLE_NAMES[i_S]+':')
+    print("READ_BARCODES for sample "+SAMPLE_NAMES[i_S]+':',flush=True)
     brc_dirs = barcode_dirs_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcode_dirs_per_sample[0]
     t0 = time.time()
     if len(brc_dirs)>1:
@@ -244,7 +244,7 @@ codewords_per_sample=[]
 if parameter["use_precomputed_barcodes"]==0:
     for i_S in range(len(SAMPLE_NAMES)):
 
-        print("Detecting Cells for "+SAMPLE_NAMES[i_S]+" ...")
+        print("Detecting Cells for "+SAMPLE_NAMES[i_S]+" ...",flush=True)
         barcodes = barcodes_per_sample[i_S] if len(SAMPLE_NAMES)>1 else barcodes_per_sample[0]
 
         counts = Counter(barcodes)
@@ -282,7 +282,7 @@ if parameter["use_precomputed_barcodes"]==0:
         print("NUM_OF_READS_in_CELL_BARCODES =",sum(values[:NUM_OF_BARCODES]))
 
         codewords_per_sample+=[labels[:NUM_OF_BARCODES]]
-
+        sys.stdout.flush()
     ## CLEANUP
     del indices; del labels; del values; del counts; del indSort; 
     _ = gc.collect()       
@@ -319,7 +319,7 @@ d=parameter['dmin']
 
 brc_idx_to_correct_per_sample=[]
 for i_S in range(len(SAMPLE_NAMES)):
-    print("\nCalculating d_min for "+SAMPLE_NAMES[i_S]+" ...")
+    print("\nCalculating d_min for "+SAMPLE_NAMES[i_S]+" ...",flush=True)
     
     codewords=codewords_per_sample[i_S] if len(SAMPLE_NAMES)>1 else codewords_per_sample[0]
     p=Pool(NUM_THREADS)
@@ -337,7 +337,7 @@ print('\ntime: ',t1-t0, "sec")
 
 ###########################################
 
-print("Writing output...")
+print("Writing output...",flush=True)
 
 import pickle
 save_dir=str(parameter["SAVE_DIR"])
