@@ -92,16 +92,29 @@ try:
         read_dirs = []
         for i_F in range(len(FASTQ_DIRS)):
             for f in sorted(listdir(str(FASTQ_DIRS[i_F]))):
-                pattern = r"^"+str(SAMPLE_NAMES[i_S])+"_S\d+_L00\d_([IR]\d)_001.fastq.gz"
-                match = re.match(pattern, f)
-                if match:
-                    barcode_name = match.group(1)
-                if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R1':
+                
+                if (isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and 
+                    f[-8:]=='fastq.gz' and f.find('R1')>0):
+
                     barcode_filenames.append(f)
                     barcode_dirs.append(str(FASTQ_DIRS[i_F])+f)
-                if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R2':
+
+                if (isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and 
+                    f[-8:]=='fastq.gz' and f.find('R2')>0):
+
                     read_filenames.append(f)
                     read_dirs.append(str(FASTQ_DIRS[i_F])+f)
+                    
+#                pattern = r"^"+str(SAMPLE_NAMES[i_S])+"_S\d+_L00\d_([IR]\d)_001.fastq.gz"
+#                match = re.match(pattern, f)
+#                if match:
+#                    barcode_name = match.group(1)
+#                if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R1':
+#                    barcode_filenames.append(f)
+#                    barcode_dirs.append(str(FASTQ_DIRS[i_F])+f)
+#                if isfile(join(str(FASTQ_DIRS[i_F]), f)) and f.startswith(str(SAMPLE_NAMES[i_S])) and barcode_name == 'R2':
+#                    read_filenames.append(f)
+#                    read_dirs.append(str(FASTQ_DIRS[i_F])+f)
         barcode_filenames_per_sample += [barcode_filenames]
         barcode_dirs_per_sample += [barcode_dirs]
         read_filenames_per_sample += [read_filenames]
@@ -122,7 +135,8 @@ try:
     print("\n----------------------------------------------------------------------------------------")   
 except:
     print("ERROR loading R1 and/or R2 files for samples: "+str(SAMPLE_NAMES))
-    
+
+sys.stdout.flush()
 os.chdir(parameter["SOURCE_DIR"])
 skip=''
 try:
